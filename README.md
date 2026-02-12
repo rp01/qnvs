@@ -1,1 +1,279 @@
-# qnvs
+# QNVS - Quick Node Version Switcher
+
+[![GitHub release](https://img.shields.io/github/release/qnvs/qnvs.svg)](https://github.com/qnvs/qnvs/releases)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-windows%20%7C%20macos%20%7C%20linux-lightgrey.svg)]()
+
+```
+ ██████╗ ███╗   ██╗██╗   ██╗███████╗
+██╔═══██╗████╗  ██║██║   ██║██╔════╝
+██║   ██║██╔██╗ ██║██║   ██║███████╗
+██║▄▄ ██║██║╚██╗██║╚██╗ ██╔╝╚════██║
+╚██████╔╝██║ ╚████║ ╚████╔╝ ███████║
+ ╚══▀▀═╝ ╚═╝  ╚═══╝  ╚═══╝  ╚══════╝
+```
+
+**🚀 A fast, lightweight Node.js version manager that requires NO admin privileges!**
+
+Built with Go and featuring a beautiful interactive TUI, QNVS is a single binary with zero dependencies.
+
+## ✨ Features
+
+- ✅ **No admin/root privileges required** - Works entirely in user space
+- ✅ **Windows compatible** - Automatic shim fallback when junctions are blocked
+- ✅ **Interactive TUI** - Beautiful terminal interface, just run `qnvs`
+- ✅ **Single binary** - No dependencies, no installation scripts
+- ✅ **Cross-platform** - Windows, macOS, and Linux
+- ✅ **VPN/Proxy friendly** - Built-in TLS skip option for corporate networks
+- ✅ **Fast switching** - Instant version changes
+- ✅ **Lightweight** - ~10MB binary size
+
+## 📸 Screenshots
+
+### Interactive Mode
+Just run `qnvs` with no arguments:
+
+```
+ ██████╗ ███╗   ██╗██╗   ██╗███████╗
+██╔═══██╗████╗  ██║██║   ██║██╔════╝
+██║   ██║██╔██╗ ██║██║   ██║███████╗
+██║▄▄ ██║██║╚██╗██║╚██╗ ██╔╝╚════██║
+╚██████╔╝██║ ╚████║ ╚████╔╝ ███████║
+ ╚══▀▀═╝ ╚═╝  ╚═══╝  ╚═══╝  ╚══════╝
+  Quick Node Version Switcher • No admin required
+
+╭──────────────────────────────────────────────╮
+│                                              │
+│  ▸ 📦  Install Node.js                       │
+│        Download and install a new version   │
+│                                              │
+│    📋  List/Switch                           │
+│    🗑️   Uninstall                            │
+│    🔧  Setup                                 │
+│    🔓  Toggle TLS Skip                       │
+│    ❓  Help                                  │
+│    👋  Exit                                  │
+│                                              │
+│  ──────────────────────────────────────────  │
+│   2 installed   Active: v22.22.0             │
+│                                              │
+╰──────────────────────────────────────────────╯
+
+  ↑↓ navigate │ ⏎ select │ q quit
+```
+
+## 📦 Installation
+
+### Download Binary
+
+Download the latest binary for your platform from [Releases](https://github.com/qnvs/qnvs/releases):
+
+| Platform | Download |
+|----------|----------|
+| Windows x64 | `qnvs-windows-amd64.exe` |
+| Windows ARM64 | `qnvs-windows-arm64.exe` |
+| macOS Intel | `qnvs-macos-amd64` |
+| macOS Apple Silicon | `qnvs-macos-arm64` |
+| Linux x64 | `qnvs-linux-amd64` |
+| Linux ARM64 | `qnvs-linux-arm64` |
+
+### Quick Install
+
+**macOS / Linux:**
+```bash
+# Download (replace with your platform)
+curl -L https://github.com/qnvs/qnvs/releases/latest/download/qnvs-linux-amd64 -o qnvs
+chmod +x qnvs
+./qnvs setup
+```
+
+**Windows (PowerShell):**
+```powershell
+Invoke-WebRequest -Uri "https://github.com/qnvs/qnvs/releases/latest/download/qnvs-windows-amd64.exe" -OutFile "qnvs.exe"
+.\qnvs.exe setup
+```
+
+### Build from Source
+
+```bash
+git clone https://github.com/qnvs/qnvs.git
+cd qnvs
+go build -o qnvs .
+./qnvs setup
+```
+
+## 🚀 Quick Start
+
+### Interactive Mode (Recommended)
+
+Just run `qnvs` with no arguments to launch the interactive TUI:
+
+```bash
+qnvs
+```
+
+Use arrow keys to navigate, Enter to select.
+
+### CLI Mode
+
+```bash
+# Install a Node.js version
+qnvs install 22
+qnvs install lts
+qnvs install 20.10.0
+
+# Switch versions
+qnvs use 22
+
+# List installed versions
+qnvs list
+
+# Show current version
+qnvs current
+
+# Uninstall a version
+qnvs uninstall 20
+```
+
+## 📖 Commands
+
+| Command | Description |
+|---------|-------------|
+| `qnvs` | Launch interactive TUI |
+| `qnvs install <version>` | Install a Node.js version |
+| `qnvs use <version>` | Switch to a version |
+| `qnvs list` | List installed versions |
+| `qnvs current` | Show active version |
+| `qnvs uninstall <version>` | Remove a version |
+| `qnvs setup` | Initialize QNVS and configure PATH |
+| `qnvs help` | Show help message |
+
+### Version Formats
+
+| Format | Example | Description |
+|--------|---------|-------------|
+| Major | `22` | Latest 22.x.x |
+| Full | `22.10.0` | Specific version |
+| LTS | `lts` | Latest LTS release |
+| Latest | `latest` | Latest available |
+
+## 🔐 Corporate VPN / Proxy Support
+
+If you're behind a corporate VPN (Cato, Zscaler, etc.) that does TLS inspection, you may encounter certificate errors.
+
+### CLI Flag
+```bash
+qnvs install 22 --insecure
+qnvs --insecure install lts
+```
+
+### Interactive Mode
+Select **"🔓 Toggle TLS Skip"** from the menu before installing.
+
+## 🏢 Windows Corporate Environments
+
+QNVS is designed to work in restricted Windows environments where:
+- Developer Mode is disabled
+- `mklink` is blocked by Group Policy
+- Users don't have admin privileges
+
+### How It Works
+
+QNVS uses a **hybrid approach**:
+
+1. **First, it tries directory junctions** (`mklink /J`) - these are fast and work on most systems without admin rights
+2. **If junctions fail, it automatically falls back to shim mode** - creates small `.cmd` wrapper scripts that redirect to the active Node.js version
+
+This fallback is automatic and transparent - you don't need to configure anything!
+
+### Shim Mode Details
+
+When shim mode is active, QNVS creates these files in `~/.qnvs/bin/`:
+- `node.cmd` - redirects to the active Node.js executable
+- `npm.cmd` - redirects to npm
+- `npx.cmd` - redirects to npx
+
+These shims cannot be blocked by Group Policy since they're just regular batch files.
+
+## 📁 Directory Structure
+
+QNVS stores everything in `~/.qnvs/`:
+
+```
+~/.qnvs/
+├── bin/           # QNVS binary
+│   └── qnvs
+├── versions/      # Installed Node.js versions
+│   ├── v20.10.0/
+│   └── v22.22.0/
+└── current        # Symlink to active version
+```
+
+## ⚙️ PATH Configuration
+
+After running `qnvs setup`, add to your shell config:
+
+**Bash (~/.bashrc):**
+```bash
+export PATH="$HOME/.qnvs/bin:$HOME/.qnvs/current/bin:$PATH"
+```
+
+**Zsh (~/.zshrc):**
+```bash
+export PATH="$HOME/.qnvs/bin:$HOME/.qnvs/current/bin:$PATH"
+```
+
+**PowerShell:**
+```powershell
+$env:Path = "$env:USERPROFILE\.qnvs\bin;$env:USERPROFILE\.qnvs\current;$env:Path"
+```
+
+**Windows CMD:**
+```cmd
+set PATH=%USERPROFILE%\.qnvs\bin;%USERPROFILE%\.qnvs\current;%PATH%
+```
+
+## 🛠️ Development
+
+### Prerequisites
+- Go 1.24+
+
+### Build
+
+```bash
+# Build for current platform
+go build -o qnvs .
+
+# Cross-compile
+GOOS=windows GOARCH=amd64 go build -o qnvs-windows.exe .
+GOOS=darwin GOARCH=arm64 go build -o qnvs-macos-arm64 .
+GOOS=linux GOARCH=amd64 go build -o qnvs-linux .
+```
+
+### Dependencies
+
+QNVS uses only the [Charm](https://charm.sh/) ecosystem for the TUI:
+- `github.com/charmbracelet/bubbletea` - TUI framework
+- `github.com/charmbracelet/bubbles` - TUI components
+- `github.com/charmbracelet/lipgloss` - Styling
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit your changes: `git commit -am 'Add amazing feature'`
+4. Push to the branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request
+
+## 📝 License
+
+MIT License - see [LICENSE](LICENSE) for details.
+
+## 🐛 Issues & Support
+
+- **Bug Reports**: [GitHub Issues](https://github.com/qnvs/qnvs/issues)
+- **Feature Requests**: [GitHub Issues](https://github.com/qnvs/qnvs/issues)
+
+---
+
+**Made with ❤️ in Go**
