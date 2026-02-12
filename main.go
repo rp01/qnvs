@@ -959,7 +959,7 @@ func main() {
 		printHelp()
 
 	case "version", "-v", "--version":
-		fmt.Printf("nvs version %s\n", VERSION)
+		fmt.Printf("qnvs version %s\n", VERSION)
 
 	default:
 		fmt.Printf("❌ Unknown command: %s\n", cmd)
