@@ -24,8 +24,9 @@ import (
 // =============================================================================
 
 const (
-	QNVS_DIR_NAME = ".qnvs"
-	VERSION       = "1.0.0"
+	QNVS_DIR_NAME         = ".qnvs"
+	QNVS_DIR_NAME_WINDOWS = "qnvs"
+	VERSION               = "1.0.0"
 )
 
 // Global flag for insecure mode (skip TLS verification)
@@ -58,16 +59,43 @@ type QuickNodeVersionSwitcher struct {
 
 // NewQuickNodeVersionSwitcher creates a new instance
 func NewQuickNodeVersionSwitcher() *QuickNodeVersionSwitcher {
-	homeDir := getHomeDir()
-	qnvsDir := filepath.Join(homeDir, QNVS_DIR_NAME)
+	qnvsDir := getQNVSDir()
 
 	return &QuickNodeVersionSwitcher{
-		HomeDir:     homeDir,
+		HomeDir:     getHomeDir(),
 		QNVSDir:     qnvsDir,
 		VersionsDir: filepath.Join(qnvsDir, "versions"),
 		BinDir:      filepath.Join(qnvsDir, "bin"),
 		CurrentLink: filepath.Join(qnvsDir, "current"),
 	}
+}
+
+// getQNVSDir determines the best directory for QNVS data
+// Priority:
+// 1. QNVS_HOME environment variable (user override)
+// 2. Windows: %LOCALAPPDATA%\qnvs (most reliable in corporate environments)
+// 3. Windows fallback: %USERPROFILE%\.qnvs
+// 4. Unix: ~/.qnvs
+func getQNVSDir() string {
+	// Check for user override first
+	if qnvsHome := os.Getenv("QNVS_HOME"); qnvsHome != "" {
+		return qnvsHome
+	}
+
+	if runtime.GOOS == "windows" {
+		// On Windows, prefer LOCALAPPDATA (C:\Users\xxx\AppData\Local)
+		// This is more reliable in corporate environments with folder redirection
+		if localAppData := os.Getenv("LOCALAPPDATA"); localAppData != "" {
+			return filepath.Join(localAppData, QNVS_DIR_NAME_WINDOWS)
+		}
+		// Fall back to USERPROFILE
+		if userProfile := os.Getenv("USERPROFILE"); userProfile != "" {
+			return filepath.Join(userProfile, QNVS_DIR_NAME)
+		}
+	}
+
+	// Unix systems: use home directory
+	return filepath.Join(getHomeDir(), QNVS_DIR_NAME)
 }
 
 // getHomeDir returns the user's home directory
@@ -90,6 +118,16 @@ func (qnvs *QuickNodeVersionSwitcher) Init() error {
 	dirs := []string{qnvs.QNVSDir, qnvs.VersionsDir, qnvs.BinDir}
 	for _, dir := range dirs {
 		if err := os.MkdirAll(dir, 0755); err != nil {
+			// Provide helpful error message for permission issues
+			if os.IsPermission(err) {
+				return fmt.Errorf("permission denied creating %s\n\n"+
+					"💡 Try one of these solutions:\n"+
+					"   1. Set QNVS_HOME environment variable to a writable location:\n"+
+					"      set QNVS_HOME=C:\\path\\to\\writable\\folder\n\n"+
+					"   2. Run from a directory where you have write permissions\n\n"+
+					"   3. Contact your IT administrator to grant write access to:\n"+
+					"      %s", dir, qnvs.QNVSDir)
+			}
 			return fmt.Errorf("failed to create directory %s: %w", dir, err)
 		}
 	}
@@ -152,6 +190,7 @@ func (qnvs *QuickNodeVersionSwitcher) installSelf() error {
 func (qnvs *QuickNodeVersionSwitcher) showPathSetup() error {
 	fmt.Println("\n📋 PATH Setup Instructions")
 	fmt.Println(strings.Repeat("─", 40))
+	fmt.Printf("\n📁 QNVS directory: %s\n", qnvs.QNVSDir)
 
 	if runtime.GOOS == "windows" {
 		fmt.Println("\nFor PowerShell (current session), run:")
@@ -161,6 +200,8 @@ func (qnvs *QuickNodeVersionSwitcher) showPathSetup() error {
 		fmt.Printf("  %s\n", qnvs.CurrentLink)
 		fmt.Println("\n💡 Tip: If junctions don't work in your environment, QNVS will")
 		fmt.Println("   automatically use shim mode (only bin directory needed in PATH).")
+		fmt.Println("\n💡 Tip: You can change the install location by setting QNVS_HOME:")
+		fmt.Println("   set QNVS_HOME=D:\\tools\\qnvs")
 	} else {
 		shell := filepath.Base(os.Getenv("SHELL"))
 		profile := ".bashrc"
@@ -959,7 +1000,7 @@ func main() {
 		printHelp()
 
 	case "version", "-v", "--version":
-		fmt.Printf("nvs version %s\n", VERSION)
+		fmt.Printf("qnvs version %s\n", VERSION)
 
 	default:
 		fmt.Printf("❌ Unknown command: %s\n", cmd)

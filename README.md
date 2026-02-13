@@ -197,16 +197,46 @@ These shims cannot be blocked by Group Policy since they're just regular batch f
 
 ## 📁 Directory Structure
 
-QNVS stores everything in `~/.qnvs/`:
+QNVS stores data in the following locations:
+
+| Platform | Default Location |
+|----------|------------------|
+| **Windows** | `%LOCALAPPDATA%\qnvs` (e.g., `C:\Users\xxx\AppData\Local\qnvs`) |
+| **macOS/Linux** | `~/.qnvs` |
+
+### Custom Location
+
+You can override the default location by setting the `QNVS_HOME` environment variable:
+
+**Windows (PowerShell):**
+```powershell
+$env:QNVS_HOME = "D:\tools\qnvs"
+```
+
+**Windows (CMD):**
+```cmd
+set QNVS_HOME=D:\tools\qnvs
+```
+
+**macOS/Linux:**
+```bash
+export QNVS_HOME=/opt/qnvs
+```
+
+### Directory Contents
 
 ```
-~/.qnvs/
-├── bin/           # QNVS binary
-│   └── qnvs
+qnvs/
+├── bin/           # QNVS binary and shims
+│   ├── qnvs.exe   # (or qnvs on Unix)
+│   ├── node.cmd   # (Windows shim mode only)
+│   ├── npm.cmd
+│   └── npx.cmd
 ├── versions/      # Installed Node.js versions
 │   ├── v20.10.0/
 │   └── v22.22.0/
-└── current        # Symlink to active version
+├── current        # Symlink/junction to active version
+└── current_version # (Windows shim mode only) stores active version
 ```
 
 ## ⚙️ PATH Configuration
@@ -225,13 +255,15 @@ export PATH="$HOME/.qnvs/bin:$HOME/.qnvs/current/bin:$PATH"
 
 **PowerShell:**
 ```powershell
-$env:Path = "$env:USERPROFILE\.qnvs\bin;$env:USERPROFILE\.qnvs\current;$env:Path"
+$env:Path = "$env:LOCALAPPDATA\qnvs\bin;$env:LOCALAPPDATA\qnvs\current;$env:Path"
 ```
 
 **Windows CMD:**
 ```cmd
-set PATH=%USERPROFILE%\.qnvs\bin;%USERPROFILE%\.qnvs\current;%PATH%
+set PATH=%LOCALAPPDATA%\qnvs\bin;%LOCALAPPDATA%\qnvs\current;%PATH%
 ```
+
+> 💡 **Note:** If you set a custom `QNVS_HOME`, use that path instead.
 
 ## 🛠️ Development
 
@@ -268,6 +300,53 @@ QNVS uses only the [Charm](https://charm.sh/) ecosystem for the TUI:
 ## 📝 License
 
 MIT License - see [LICENSE](LICENSE) for details.
+
+## 🔧 Troubleshooting
+
+### "Access is denied" when creating directory
+
+If you see an error like:
+```
+Init failed: failed to create directory C:\Users\xxx\.qnvs: Access is denied.
+```
+
+**Solutions:**
+
+1. **Set a custom location** using `QNVS_HOME`:
+   ```powershell
+   $env:QNVS_HOME = "C:\tools\qnvs"
+   qnvs setup
+   ```
+
+2. **Use a different drive** if your user profile is restricted:
+   ```cmd
+   set QNVS_HOME=D:\qnvs
+   qnvs setup
+   ```
+
+3. **Contact IT** to request write access to `%LOCALAPPDATA%`
+
+### "Unknown Publisher" warning on Windows
+
+This appears because the binary isn't code-signed. You can:
+- Click "More info" → "Run anyway"
+- Or right-click the file → Properties → Unblock
+
+### Junction/symlink errors
+
+If you see junction-related errors, QNVS will automatically fall back to shim mode. No action needed!
+
+If shim mode also fails, set a custom `QNVS_HOME` to a location where you have full write access.
+
+### Node.js not found after switching versions
+
+Make sure your PATH is configured correctly:
+```powershell
+# Check if qnvs directories are in PATH
+$env:Path -split ';' | Select-String 'qnvs'
+```
+
+Run `qnvs setup` to see the correct PATH configuration for your system.
 
 ## 🐛 Issues & Support
 
